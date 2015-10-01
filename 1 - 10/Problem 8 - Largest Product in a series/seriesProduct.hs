@@ -4,6 +4,7 @@ import System.IO.Error
 import Control.Exception
 import System.Directory
 import Data.Char
+import Debug.Trace
 
 main = parseAndStart `catch` onError
 
@@ -28,12 +29,14 @@ maybeRead n = case reads n of
 findProduct :: Maybe Int -> [Char] -> String
 findProduct Nothing _              = "The product length was incorrectly entered. Please enter an integer value"
 findProduct (Just length) contents
-                                = let digitList       = map (digitToInt) contents
+                                = let digitList       = map (digitToInt) (filter (/='\n')contents)
                                       (firstList, xs) = splitAt length digitList
                                       productList     = reverse firstList
-                                      firstProduct    = foldr(\x acc -> acc * (x)) 1 productList
-                                  in  show (productIterate 0  firstProduct productList xs)
-                                      where productIterate max _ _ []            = max
-                                            productIterate max cur (p:ps) (z:zs) = if(cur > max)
-                                                                                   then productIterate cur (cur * z / p) (ps ++ z) zs
-                                                                                   else productIterate max (cur * z / p) (ps ++ z) zs
+                                      firstProduct    = foldr(\x acc -> acc * (x)) 1 productList :: Int
+                                  in  show (productIterate (firstProduct,[]) productList xs)
+                                      where productIterate (max,ls) cl@(p:ps)  []    =  let cur = foldr(\x acc -> acc * x) 1 cl
+                                                                                        in if (max > cur) then (max,ls) else (cur,cl)
+                                            productIterate (max,ls) cl@(p:ps) (z:zs) =  let cur = foldr(\x acc -> acc * x) 1 cl
+                                                                                        in trace(show (cur,cl)) $if(cur > max)
+                                                                                                   then productIterate (cur,cl) (ps ++ [z]) zs
+                                                                                                   else productIterate (max,ls) (ps ++ [z]) zs
