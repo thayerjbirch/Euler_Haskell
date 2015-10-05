@@ -7,11 +7,8 @@ a = fromList 3 3 [1,-2,2,2,-1,2,2,-2,3]
 b = fromList 3 3 [1,2,2,2,1,2,2,2,3]
 c = fromList 3 3 [-1,2,2,-2,1,2,-2,2,3]
 
-data FuncTree = Empty | Node FuncTree FuncTree FuncTree
+data FuncTree a = Empty | Node a (FuncTree a) (FuncTree a) (FuncTree a)
  
-{-pTree :: FuncTree
+pTree :: FuncTree (Matrix *)
 pTree = build fstTriplet
-            where build k = (State k) build(k * a) build(k * b) build(k * c)-}
-            
-myTree = build 1
-            where build k  = (Node k) build(k*3-1) build(k*3) build(k*3+1)
+            where build k = (Node k) build(k * a) build(k * b) build(k * c)
